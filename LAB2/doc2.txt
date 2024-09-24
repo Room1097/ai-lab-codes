@@ -1,0 +1,3 @@
+Data science is a field that combines domain knowledge with programming skills.
+It involves analyzing large datasets and drawing insights from the data.
+Machine learning models are often used in data science to make predictions.
