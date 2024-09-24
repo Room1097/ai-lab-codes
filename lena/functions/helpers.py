@@ -1,71 +1,58 @@
 import numpy as np
-from PIL import Image
+import random
 
-def load_file(file_path: str) -> np.ndarray:
+def load_file(file_path):
+    # Load the pixel values from the text file and reshape them into a 512x512 matrix
     numbers = np.loadtxt(file_path)
     matrix = numbers.reshape(512, 512)
+    matrix = matrix.transpose()
     return matrix
 
-def find_similar_neighbors(grid, x, y, target_value, threshold):
-    similar_neighbors = []
-    neighbors = [
-        (x-1, y), (x+1, y), (x, y-1), (x, y+1),  
-        (x-1, y-1), (x-1, y+1), (x+1, y-1), (x+1, y+1)  
-    ]
-    
-    for nx, ny in neighbors:
-        
-        if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]):
-            neighbor_value = grid[nx][ny]
-        
-            if abs(neighbor_value - target_value) <= threshold:
-                similar_neighbors.append((nx, ny, neighbor_value))
-    
-    return similar_neighbors
-
-def calculate_energy(grid, threshold):
+def calculate_energy(grid):
+    # Calculate the energy based on the differences between neighboring pixels
     energy = 0
-
-    for x in range(512):
-        for y in range(512):
-            current_value = grid[x][y]
-            similar_neighbors = find_similar_neighbors(grid, x, y, current_value, threshold)
-            energy += len(similar_neighbors) 
-
+    for i in range(512):
+        for j in range(512):
+            if j < 511:  
+                if (j + 1) % 128 == 0:
+                    energy += abs(grid[i, j] - grid[i, j + 1])
+            if i < 511:  
+                if (i + 1) % 128 == 0:
+                    energy += abs(grid[i, j] - grid[i + 1, j])
     return energy
 
-def swap_pixels(grid):
-    x1, y1 = np.random.randint(0, len(grid)), np.random.randint(0, len(grid[0]))
-    x2, y2 = np.random.randint(0, len(grid)), np.random.randint(0, len(grid[0]))
+def swap_pieces(grid):
+    i, j = random.sample(range(16), 2)
+    r1, r2 = i // 4, j // 4
+    c1, c2 = i % 4, j % 4
     
-    grid[x1][y1], grid[x2][y2] = grid[x2][y2], grid[x1][y1]
+    rn1, rn2 = 128 * r1, 128 * r2
+    cn1, cn2 = 128 * c1, 128 * c2
+    
+    piece1 = grid[rn1:rn1 + 128, cn1:cn1 + 128].copy()
+    piece2 = grid[rn2:rn2 + 128, cn2:cn2 + 128].copy()
+
+    grid[rn1:rn1 + 128, cn1:cn1 + 128] = piece2
+    grid[rn2:rn2 + 128, cn2:cn2 + 128] = piece1
+
     return grid
 
-
-def simulated_annealing(grid, initial_temp, cooling_rate, threshold, min_temp):
-    iteration = 0
+def simulated_annealing(grid, initial_temp, cooling_rate, min_temp):
     current_grid = grid.copy()
-    current_energy = calculate_energy(current_grid, threshold)
+    current_energy = calculate_energy(current_grid)
     best_grid = current_grid.copy()
     best_energy = current_energy
     
     temperature = initial_temp
     
-    while initial_temp > min_temp:
+    while temperature > min_temp:
         new_grid = current_grid.copy()
-        swap_pixels(new_grid)
+        swap_pieces(new_grid)
 
-        new_energy = calculate_energy(new_grid, threshold)
-        """
-            Acceptance Criteria : 
-                - If the new energy is less than the current energy, accept the new grid
-                - If the new energy is greater than the current energy, accept the new grid with a probability based on the temperature
-        """
-
+        new_energy = calculate_energy(new_grid)
         if new_energy < current_energy:
             current_grid = new_grid
             current_energy = new_energy
-
         else:
             acceptance_probability = np.exp(-(new_energy - current_energy) / temperature)
             if np.random.rand() < acceptance_probability:
@@ -76,13 +63,5 @@ def simulated_annealing(grid, initial_temp, cooling_rate, threshold, min_temp):
             best_grid = current_grid.copy()
             best_energy = current_energy
 
-        
         temperature *= cooling_rate
-        iteration += 1
-
-        if iteration % 100 == 0: 
-            print(f"Iteration {iteration}, Current Energy: {current_energy}, Best Energy: {best_energy}")
-            img = Image.fromarray(current_grid.astype(np.uint8), mode='L')
-            img.save(f"reconstructed_image_{iteration}.png")
-
     return best_grid
