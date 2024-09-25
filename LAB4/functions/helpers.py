@@ -2,14 +2,12 @@ import numpy as np
 import random
 
 def load_file(file_path):
-    # Load the pixel values from the text file and reshape them into a 512x512 matrix
     numbers = np.loadtxt(file_path)
     matrix = numbers.reshape(512, 512)
     matrix = matrix.transpose()
     return matrix
 
 def calculate_energy(grid):
-    # Calculate the energy based on the differences between neighboring pixels
     energy = 0
     for i in range(512):
         for j in range(512):
