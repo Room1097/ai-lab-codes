@@ -1,40 +1,26 @@
 import heapq
-from .helpers import is_goal, get_successors, construct_path, calculate_heuristic
+from typing import List, Optional, Tuple
 
-def best_first_search(start_state, heuristic_type):
+from .helpers import State, calculate_heuristic, get_successors, is_goal, construct_path
+
+
+def best_first_search(start_state: List[List[int]], heuristic_type: str) -> Optional[Tuple[int, int]]:
     explored = set()
     frontier = []
-    initial_heuristic = calculate_heuristic(start_state, heuristic_type)
-    
-    # Create an initial node that maintains references
-    initial_node = (start_state, None, None)  # (state, parent, action)
-    heapq.heappush(frontier, (initial_heuristic, initial_node))
+    initial_state = State(start_state, None, None, calculate_heuristic(start_state, heuristic_type), 0)
+    heapq.heappush(frontier, (initial_state.heuristic, initial_state))
 
     while frontier:
-        _, current_node = heapq.heappop(frontier)
-        current_state, parent, action = current_node
+        _, current_state = heapq.heappop(frontier)
 
-        # Convert state to tuple for comparison in explored
-        current_state_tuple = tuple(tuple(row) for row in current_state)
+        if is_goal(current_state.state):
+            return len(construct_path(current_state)), len(explored)
 
-        if is_goal(current_state):
-
-            path = construct_path(current_node)
-            return len(path), len(explored)
+        current_state_tuple = tuple(map(tuple, current_state.state))
         if current_state_tuple not in explored:
             explored.add(current_state_tuple)
-            successors = get_successors(current_state, heuristic_type)
-
-            for child_node in successors:
-                child_state = child_node.state
-                child_action = child_node.action
-                child_heuristic = child_node.heuristic
-
-                
-                child_state_tuple = tuple(tuple(row) for row in child_state)
-
-                if child_state_tuple not in explored:
-                    # Add child node to frontier based on its heuristic
-                    heapq.heappush(frontier, (child_heuristic, (child_state, current_node, child_action)))
+            for successor in get_successors(current_state.state, heuristic_type):
+                successor.parent = current_state
+                heapq.heappush(frontier, (successor.heuristic, successor))
 
     return None
