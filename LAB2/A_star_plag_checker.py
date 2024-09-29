@@ -156,29 +156,34 @@ def load_text_from_file(file_path):
         return file.read()
 
 # Main function to load files and run the alignment and plagiarism detection
-def main(doc1_path, doc2_path):
+def main(doc1_path, doc2_path, output_file_path):
     doc1 = load_text_from_file(doc1_path)
     doc2 = load_text_from_file(doc2_path)
 
     aligned = align_documents(doc1, doc2)
-    print("Aligned Sentences with Distances:\n")
-    for s1, s2, distance in aligned:
-        if s1 is None:
-            print(f"Document 1: [No Sentence]\nDocument 2: {s2}\n")
-        elif s2 is None:
-            print(f"Document 1: {s1}\nDocument 2: [No Sentence]\n")
-        else:
-            print(f"Document 1: {s1}\nDocument 2: {s2}\nEdit Distance: {distance}\n")
-
-    # Detecting potential plagiarism using both edit distance and similarity score
-    plagiarism = detect_plagiarism(aligned, threshold=5, similarity_threshold=0.7)
     
-    print("\nPotential Plagiarism (with Distance and Similarity):\n")
-    for s1, s2, distance, similarity in plagiarism:
-        print(f"Sentence 1: {s1}\nSentence 2: {s2}\nEdit Distance: {distance}\nSimilarity: {similarity:.2f}\n")
+    with open(output_file_path, 'a') as output_file:
+        output_file.write("Aligned Sentences with Distances:\n\n")
+        for s1, s2, distance in aligned:
+            if s1 is None:
+                output_file.write(f"Document 1: [No Sentence]\nDocument 2: {s2}\n\n")
+            elif s2 is None:
+                output_file.write(f"Document 1: {s1}\nDocument 2: [No Sentence]\n\n")
+            else:
+                output_file.write(f"Document 1: {s1}\nDocument 2: {s2}\nEdit Distance: {distance}\n\n")
+
+        # Detecting potential plagiarism using both edit distance and similarity score
+        plagiarism = detect_plagiarism(aligned, threshold=5, similarity_threshold=0.7)
+        
+        output_file.write("\nPotential Plagiarism (with Distance and Similarity):\n\n")
+        for s1, s2, distance, similarity in plagiarism:
+            output_file.write(f"Sentence 1: {s1}\nSentence 2: {s2}\nEdit Distance: {distance}\nSimilarity: {similarity:.2f}\n\n")
+    
+    print("Results have been appended to the file.")
 
 # Example usage (you can replace these file paths with actual text files)
 doc1_path = "LAB2\\doc1.txt"
 doc2_path = "LAB2\\doc2.txt"
+output_file_path = "LAB2\\alignment_results.txt"
 
-main(doc1_path, doc2_path)
+main(doc1_path, doc2_path, output_file_path)
