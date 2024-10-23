@@ -1,0 +1,139 @@
+DOC 1
+The sun sets in the west.
+Life is beautiful and full of surprises.
+A journey of a thousand miles begins with a single step.
+To err is human; to forgive, divine.
+Knowledge is power, and education is the key.
+
+DOC 2
+The sun sets in the west.
+Life is beautiful and full of surprises.
+A journey of a thousand miles begins with a single step.
+To err is human; to forgive, divine.
+Knowledge is power, and education is the key.
+
+
+Aligned Sentences with Distances:
+
+Document 1: the sun sets in the west
+Document 2: the sun sets in the west
+Edit Distance: 0
+
+Document 1: life is beautiful and full of surprises
+Document 2: life is beautiful and full of surprises
+Edit Distance: 0
+
+Document 1: a journey of a thousand miles begins with a single step
+Document 2: a journey of a thousand miles begins with a single step
+Edit Distance: 0
+
+Document 1: to err is human to forgive divine
+Document 2: to err is human to forgive divine
+Edit Distance: 0
+
+Document 1: knowledge is power and education is the key
+Document 2: knowledge is power and education is the key
+Edit Distance: 0
+
+
+Potential Plagiarism (with Distance and Similarity):
+
+Sentence 1: the sun sets in the west
+Sentence 2: the sun sets in the west
+Edit Distance: 0
+Similarity: 1.00
+
+Sentence 1: life is beautiful and full of surprises
+Sentence 2: life is beautiful and full of surprises
+Edit Distance: 0
+Similarity: 1.00
+
+Sentence 1: a journey of a thousand miles begins with a single step
+Sentence 2: a journey of a thousand miles begins with a single step
+Edit Distance: 0
+Similarity: 1.00
+
+Sentence 1: to err is human to forgive divine
+Sentence 2: to err is human to forgive divine
+Edit Distance: 0
+Similarity: 1.00
+
+Sentence 1: knowledge is power and education is the key
+Sentence 2: knowledge is power and education is the key
+Edit Distance: 0
+Similarity: 1.00
+
+##########################
+DOC 1
+The sun sets in the west.
+Life is beautiful and full of surprises.
+A journey of a thousand miles begins with a single step.
+To err is human; to forgive, divine.
+Knowledge is power, and education is the key.
+
+DOC 2
+The sun goes down in the west.
+Life is wonderful and full of surprises.
+A journey of a thousand miles starts with a single step.
+To make mistakes is human; to forgive is divine.
+Knowledge is strength, and learning is the key.
+
+Aligned Sentences with Distances:
+
+Document 1: the sun sets in the west
+Document 2: the sun goes down in the west
+Edit Distance: 8
+
+Document 1: the sun sets in the west
+Document 2: life is wonderful and full of surprises
+Edit Distance: 30
+
+Document 1: life is beautiful and full of surprises
+Document 2: life is wonderful and full of surprises
+Edit Distance: 6
+
+Document 1: life is beautiful and full of surprises
+Document 2: a journey of a thousand miles starts with a single step
+Edit Distance: 42
+
+Document 1: a journey of a thousand miles begins with a single step
+Document 2: a journey of a thousand miles starts with a single step
+Edit Distance: 5
+
+Document 1: a journey of a thousand miles begins with a single step
+Document 2: to make mistakes is human to forgive is divine
+Edit Distance: 44
+
+Document 1: to err is human to forgive divine
+Document 2: to make mistakes is human to forgive is divine
+Edit Distance: 15
+
+Document 1: knowledge is power and education is the key
+Document 2: to make mistakes is human to forgive is divine
+Edit Distance: 35
+
+Document 1: knowledge is power and education is the key
+Document 2: knowledge is strength and learning is the key
+Edit Distance: 15
+
+Document 1: knowledge is power and education is the key
+Document 2: [No Sentence]
+
+
+Potential Plagiarism (with Distance and Similarity):
+
+Sentence 1: the sun sets in the west
+Sentence 2: the sun goes down in the west
+Edit Distance: 8
+Similarity: 0.72
+
+Sentence 1: life is beautiful and full of surprises
+Sentence 2: life is wonderful and full of surprises
+Edit Distance: 6
+Similarity: 0.85
+
+Sentence 1: a journey of a thousand miles begins with a single step
+Sentence 2: a journey of a thousand miles starts with a single step
+Edit Distance: 5
+Similarity: 0.91
+
