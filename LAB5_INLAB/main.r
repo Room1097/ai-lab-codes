@@ -1,76 +1,85 @@
-# library(bnlearn)
-# library(e1071)
-# library(caret)
-
-# options(repos = c(CRAN = "https://cran.r-project.org"))
-# install.packages("bnlearn")
-# install.packages("e1071")
-# install.packages("caret")
-# install.packages("gRain")
-
-
+# Load required libraries
 library(bnlearn)
 library(e1071)
 library(caret)
 
-course.grades <- read.table("2020_bn_nb_data.txt",header = TRUE)
+# Read the dataset and preprocess it
+grades_data <- read.table("2020_bn_nb_data.txt", header = TRUE)
 
-course.grades[] <- lapply(course.grades, function(x) {
-    if (is.character(x)) {
-        as.factor(x)
-    } else {
-        x
-    }
+# Convert character columns to factors
+grades_data[] <- lapply(grades_data, function(col) {
+  if (is.character(col)) as.factor(col) else col
 })
 
-if (!"QP" %in% colnames(course.grades)) {
-    stop("The 'QP' variable does not exist in the dataset.")
+# Validate the presence of the target variable
+if (!"QP" %in% colnames(grades_data)) {
+  stop("Error: 'QP' variable is missing in the dataset.")
 }
 
-course.grades.net <- hc(course.grades)
-plot(course.grades.net)
-course.grades.net.fit <- bn.fit(course.grades.net, course.grades)
+# Learn the Bayesian Network structure
+learned_bn <- hc(grades_data)
+plot(learned_bn)
 
-print(nodes(course.grades.net))
+# Fit the Bayesian Network with the data
+fitted_bn <- bn.fit(learned_bn, grades_data)
 
-input_grades <- data.frame(EC100 = factor("DD", levels = levels(course.grades$EC100)),
-                           IT101 = factor("CC", levels = levels(course.grades$IT101)),
-                           MA101 = factor("CD", levels = levels(course.grades$MA101)))
+# Print the nodes of the network
+cat("Nodes in the Bayesian Network:", nodes(learned_bn), "\n")
 
-predicted_ph100 <- predict(course.grades.net.fit, node = "PH100", data = input_grades, method = "exact")
-cat("Predicted grade in PH100 for EC100: DD, IT101: CC, MA101: CD is:", predicted_ph100, "\n")
+# Predict PH100 grade for specific inputs
+input_data <- data.frame(
+  EC100 = factor("DD", levels = levels(grades_data$EC100)),
+  IT101 = factor("CC", levels = levels(grades_data$IT101)),
+  MA101 = factor("CD", levels = levels(grades_data$MA101))
+)
+predicted_grade <- predict(fitted_bn, node = "PH100", data = input_data, method = "exact")
+cat("Predicted grade for PH100 (EC100: DD, IT101: CC, MA101: CD):", predicted_grade, "\n")
 
+# Initialize random seed and set parameters
 set.seed(123)
-n_trials <- 20
-accuracy_results <- numeric(n_trials)
+num_trials <- 20
+nb_accuracies <- numeric(num_trials)
 
-for (i in 1:n_trials) {
-    train_index <- sample(1:nrow(course.grades), size = 0.7 * nrow(course.grades))
-    train_data <- course.grades[train_index, ]
-    test_data <- course.grades[-train_index, ]
-    
-    nb_classifier <- naiveBayes(QP ~ ., data = train_data)
-    predictions <- predict(nb_classifier, newdata = test_data)
-    cm <- confusionMatrix(predictions, test_data$QP)
-    accuracy_results[i] <- cm$overall['Accuracy']
+# Evaluate Naive Bayes Classifier
+for (trial in 1:num_trials) {
+  # Split dataset into training and testing sets
+  train_indices <- sample(1:nrow(grades_data), size = 0.7 * nrow(grades_data))
+  train_set <- grades_data[train_indices, ]
+  test_set <- grades_data[-train_indices, ]
+  
+  # Train and evaluate Naive Bayes model
+  nb_model <- naiveBayes(QP ~ ., data = train_set)
+  nb_predictions <- predict(nb_model, newdata = test_set)
+  nb_confusion <- confusionMatrix(nb_predictions, test_set$QP)
+  nb_accuracies[trial] <- nb_confusion$overall['Accuracy']
 }
 
-mean_accuracy_nb <- mean(accuracy_results, na.rm = TRUE)
-cat("Mean accuracy of Naive Bayes classifier over 20 trials:", mean_accuracy_nb, "\n")
+avg_nb_accuracy <- mean(nb_accuracies, na.rm = TRUE)
+cat("Average accuracy of Naive Bayes model over", num_trials, "trials:", avg_nb_accuracy, "\n")
 
-bayes_accuracy_results <- numeric(n_trials)
+# Summarize data for specific variables
+cat("Summary of MA101:\n")
+print(summary(grades_data$MA101))
+cat("Summary of IT101:\n")
+print(summary(grades_data$IT101))
+cat("Summary of EC100:\n")
+print(summary(grades_data$EC100))
+# Evaluate Bayesian Network Classifier
+bn_accuracies <- numeric(num_trials)
 
-for (i in 1:n_trials) {
-    train_index <- sample(1:nrow(course.grades), size = 0.7 * nrow(course.grades))
-    train_data <- course.grades[train_index, ]
-    test_data <- course.grades[-train_index, ]
-
-    bayes_net <- hc(train_data)
-    bayes_net_fit <- bn.fit(bayes_net, train_data)
-    bayes_predictions <- predict(bayes_net_fit, node = "QP", data = test_data, method = "exact")
-    cm_bayes <- confusionMatrix(bayes_predictions, test_data$QP)
-    bayes_accuracy_results[i] <- cm_bayes$overall['Accuracy']
+for (trial in 1:num_trials) {
+  # Split dataset into training and testing sets
+  train_indices <- sample(1:nrow(grades_data), size = 0.7 * nrow(grades_data))
+  train_set <- grades_data[train_indices, ]
+  test_set <- grades_data[-train_indices, ]
+  
+  # Train and evaluate Bayesian Network
+  trial_bn <- hc(train_set)
+  trial_bn_fit <- bn.fit(trial_bn, train_set)
+  bn_predictions <- predict(trial_bn_fit, node = "QP", data = test_set, method = "exact")
+  bn_confusion <- confusionMatrix(bn_predictions, test_set$QP)
+  bn_accuracies[trial] <- bn_confusion$overall['Accuracy']
 }
 
-mean_accuracy_bn <- mean(bayes_accuracy_results, na.rm = TRUE)
-cat("Mean accuracy of Bayesian Network classifier over 20 trials:", mean_accuracy_bn, "\n")
+avg_bn_accuracy <- mean(bn_accuracies, na.rm = TRUE)
+cat("Average accuracy of Bayesian Network model over", num_trials, "trials:", avg_bn_accuracy, "\n")
