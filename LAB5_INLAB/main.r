@@ -1,12 +1,12 @@
-library(bnlearn)
-library(e1071)
-library(caret)
+# library(bnlearn)
+# library(e1071)
+# library(caret)
 
-options(repos = c(CRAN = "https://cran.r-project.org"))
-install.packages("bnlearn")
-install.packages("e1071")
-install.packages("caret")
-install.packages("gRain")
+# options(repos = c(CRAN = "https://cran.r-project.org"))
+# install.packages("bnlearn")
+# install.packages("e1071")
+# install.packages("caret")
+# install.packages("gRain")
 
 
 library(bnlearn)
