@@ -22,10 +22,12 @@ count = 0;
 
 while ~policy_stable
     % Policy Evaluation
-    V = policy_evaluation_gbike(policy, Lamda, lamda, r, t, gam, theta, free_transfer, parking_limit, parking_cost);
+    V = policy_evaluation_gbike(policy, Lamda, lamda, r, t, gam, theta, ...
+                                free_transfer, parking_limit, parking_cost);
 
     % Policy Improvement
-    [policy, policy_stable] = policy_improvement_gbike(V, policy, Lamda, lamda, r, t, gam, free_transfer, parking_limit, parking_cost);
+    [policy, policy_stable] = policy_improvement_gbike(V, policy, Lamda, lamda, r, t, gam, ...
+                                                       free_transfer, parking_limit, parking_cost);
 
     count = count + 1;
     fprintf('Iteration %d complete.\n', count);
